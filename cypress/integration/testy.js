@@ -4,6 +4,6 @@ import 'cypress-axe'
 A11yReporter.setupCypress()
 
 it('does a thing', () => {
-  cy.visit('http://twitter.com/')
+  cy.visit('http://digital.canada.ca/')
   cy.reportA11y()
 })
