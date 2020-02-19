@@ -154,7 +154,7 @@ A11yReporter.setupCypress = (globalOpts={}) => {
     let result
 
     cy.window({ log: false }).then((win) => {
-      const page = opts.page || win.location
+      const page = opts.page || win.location.href
       const scanName = opts.name || getTestNameFromMocha(Cypress.mocha)
       reporter = new A11yReporter(page, scanName)
 
