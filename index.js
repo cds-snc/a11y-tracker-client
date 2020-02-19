@@ -192,7 +192,7 @@ A11yReporter.setupCypress = (globalOpts={}) => {
       // assert that there are no violations. we don't do this earlier because
       // it could end the whole run and interrupt the POST.
       const n = result.violations.length
-      assert.equal(n, 0, `${n} ${plural(n, 'violation')} ${plural(n, 'was', 'were')} detected`)
+      assert.equal(n, 0, `a11y: ${n} ${plural(n, 'violation')} ${plural(n, 'was', 'were')} detected`)
 
     })
   })
