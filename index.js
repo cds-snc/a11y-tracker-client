@@ -8,12 +8,16 @@ const XHR = typeof XMLHttpRequest === 'undefined'
 const axe = require('axe-core')
 
 // ============= util functions ============== /
+
+// chomp off a trailing character if it's at the end
 const chomp = (str, ch) => {
   if (!str) return str
   if (str[str.length - 1] === ch) return str.slice(0, -1)
   else return str
 }
 
+// pluralize an english word according to a number (can pass a
+// custom plural form for irregular words)
 const plural = (num, single, multiple) => {
   if (!multiple) multiple = `${single}s`
   return num === 1 ? single : multiple
@@ -55,8 +59,8 @@ const post = (uri, data) => {
 //
 // // configure global options (ideally from env variables)
 // A11yReporter.configure({
-//   runId: '1234567890abcdef', // e.g. the current git hash
-//   baseURI: 'http://url-for.a11y-tracking.service/' // where to find the service
+//   revision: '1234567890abcdef', // e.g. the current git hash
+//   trackerURI: 'http://url-for.a11y-tracking.service/' // where to find the service
 // })
 //
 // // create a reporter with the page name and description of the state
@@ -72,20 +76,23 @@ class A11yReporter {
     this.page = page
     this.scanName = scanName
 
-    this.runId = opts.runId || A11yReporter.runId
-    this.baseURI = chomp(opts.baseURI || A11yReporter.baseURI, '/')
+    this.revision = opts.revision || A11yReporter.revision
+    this.project = opts.project || A11yReporter.project
+    this.key = opts.key || A11yReporter.key
+
+    this.trackerURI = chomp(opts.trackerURI || A11yReporter.trackerURI, '/')
   }
 
   get scanURI() {
-    if (!this.baseURI) return
-    else return `${this.baseURI}/scans`
+    if (!this.trackerURI) return
+    else return `${this.trackerURI}/api/v1/scans`
   }
 
   async report(axeResult) {
     return await post(this.scanURI, {
-      run_id: this.runId,
-      page: this.page,
-      name: this.scanName,
+      revision: this.revision,
+      scan_name: this.scanName,
+      project_name: this.project,
       result: axeResult,
     })
   }
@@ -95,8 +102,10 @@ class A11yReporter {
 // the runtime (optional - these could just be passed to the constructor
 // instead, but this is often more convenient)
 A11yReporter.configure = (opts) => {
-  if (opts.baseURI) A11yReporter.baseURI = opts.baseURI
-  if (opts.runId) A11yReporter.runId = opts.runId
+  if (opts.trackerURI) A11yReporter.trackerURI = opts.trackerURI
+  if (opts.revision) A11yReporter.revision = opts.revision
+  if (opts.project) A11yReporter.project = opts.project
+  if (opts.key) A11yReporter.key = opts.key
 }
 
 
@@ -114,8 +123,6 @@ const getTestNameFromMocha = (mocha) => {
   return out.join('::')
 }
 
-const promisify = (chainer) => new Promise((resolve) => chainer.then(resolve))
-
 // When using through Cypress, use the `setupCypress` function to set up and
 // inject the correct functions into the runtime.
 //
@@ -125,10 +132,10 @@ const promisify = (chainer) => new Promise((resolve) => chainer.then(resolve))
 // A11yReporter.setupCypress(cy, {
 //   // the location of the a11y tracker service, default $A11Y_REPORTER_URI
 //   // if empty, will not post results and instead just log to the console
-//   baseURI: ...
+//   trackerURI: ...
 //
 //   // default to $A11Y_REPORTER_URI or $GIT_HASH
-//   runId: ...,
+//   revision: ...,
 //
 //   ... options for axe.configure(...) ...
 // })
@@ -145,8 +152,8 @@ const promisify = (chainer) => new Promise((resolve) => chainer.then(resolve))
 //
 A11yReporter.setupCypress = (globalOpts={}) => {
   A11yReporter.configure({
-    baseURI: globalOpts.baseURI || Cypress.env('A11Y_REPORTER_URI'),
-    runId: globalOpts.runId || Cypress.env('A11Y_REPORTER_RUN_ID') || Cypress.env('GIT_HASH'),
+    trackerURI: globalOpts.trackerURI || Cypress.env('A11Y_TRACKER_URI'),
+    revision: globalOpts.revision || Cypress.env('A11Y_TRACKER_RUN_ID') || Cypress.env('GIT_HASH'),
   })
 
   Cypress.Commands.add('reportA11y', (context, opts={}) => {
@@ -167,6 +174,8 @@ A11yReporter.setupCypress = (globalOpts={}) => {
       // another cypress .then to avoid more nesting
       return win.axe.run(opts.context || win.document, opts)
     }).then((_result) => {
+      // make sure we have the result available in the higher scope so we can
+      // use it later
       result = _result
 
       // report the results - we don't actually wait for this
