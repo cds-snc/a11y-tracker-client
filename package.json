@@ -1,6 +1,6 @@
 {
   "name": "@cdssnc/a11y-tracker-client",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Client for the CDS-SNC accessibility tracker",
   "main": "index.js",
   "scripts": {
