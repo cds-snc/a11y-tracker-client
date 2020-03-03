@@ -93,6 +93,7 @@ class A11yReporter {
       revision: this.revision,
       scan_name: this.scanName,
       project_name: this.project,
+      key: this.key,
       result: axeResult,
     })
   }
