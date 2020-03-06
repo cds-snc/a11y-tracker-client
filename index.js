@@ -154,7 +154,9 @@ const getTestNameFromMocha = (mocha) => {
 A11yReporter.setupCypress = (globalOpts={}) => {
   A11yReporter.configure({
     trackerURI: globalOpts.trackerURI || Cypress.env('A11Y_TRACKER_URI'),
-    revision: globalOpts.revision || Cypress.env('A11Y_TRACKER_RUN_ID') || Cypress.env('GIT_HASH'),
+    revision: globalOpts.revision || Cypress.env('A11Y_TRACKER_REVISION') || Cypress.env('GIT_HASH'),
+    project: globalOpts.project || Cypress.env('A11Y_TRACKER_PROJECT')
+    key: globalOpts.key || Cypress.env('A11Y_TRACKER_KEY'),
   })
 
   Cypress.Commands.add('reportA11y', (context, opts={}) => {
