@@ -155,7 +155,7 @@ A11yReporter.setupCypress = (globalOpts={}) => {
   A11yReporter.configure({
     trackerURI: globalOpts.trackerURI || Cypress.env('A11Y_TRACKER_URI'),
     revision: globalOpts.revision || Cypress.env('A11Y_TRACKER_REVISION') || Cypress.env('GIT_HASH'),
-    project: globalOpts.project || Cypress.env('A11Y_TRACKER_PROJECT')
+    project: globalOpts.project || Cypress.env('A11Y_TRACKER_PROJECT'),
     key: globalOpts.key || Cypress.env('A11Y_TRACKER_KEY'),
   })
 
