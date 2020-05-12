@@ -1,7 +1,7 @@
-# Installing the API client
+# Installing the JavaScript API client
 
 ### Purpose
-The purpose of this document is to demonstrate how to install the API client as part of your [Cypress.io](https://www.cypress.io/) workflows to enable the upload of that data to the accessibility tracker.
+The purpose of this document is to demonstrate how to install the JavaScript API client as part of your [Cypress.io](https://www.cypress.io/) workflows to enable the upload of that data to the accessibility tracker.
 
 ### Installing the client
 To install the API client, save the NPM package to your developer dependencies using the following command:
